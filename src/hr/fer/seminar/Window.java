@@ -106,7 +106,7 @@ public class Window extends JFrame {
 			
 				} while (running && !train());
 				
-				System.out.println(running);
+				SwingUtilities.invokeLater(() -> drawPanel.repaint());
 				
 			}).start();
 		});
