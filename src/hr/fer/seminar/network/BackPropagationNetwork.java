@@ -6,13 +6,13 @@ import java.util.List;
 
 public class BackPropagationNetwork {
 	
-	private List<INetworkLayer> layers = new ArrayList<>();
+	public List<INetworkLayer> layers = new ArrayList<>();
 	
 	private double result;
 	
 	private double error;
 	
-	private static double LEARNING_RATE = 0.8;
+	private static double LEARNING_RATE = 0.5;
 
 	public BackPropagationNetwork(int[] network) {
 		setup(network);
@@ -20,12 +20,8 @@ public class BackPropagationNetwork {
 	
 	private void setup(int[] network) {
 		layers.add(new InputNetworkLayer());
-		for (int i = 0; i < network.length; ++i) {
-			if (i == 0) {
-				layers.add(new HiddenNetworkLayer(network[i], 2));
-			} else {
-				layers.add(new HiddenNetworkLayer(network[i], network[i - 1]));
-			}
+		for (int i = 1; i < network.length; ++i) {
+			layers.add(new HiddenNetworkLayer(network[i], network[i - 1]));
 		}
 	}
 	
@@ -41,7 +37,7 @@ public class BackPropagationNetwork {
 	public void calculateAndAdjustError(double desired) {
 		double[] errors = new double[] {error = desired - result};
 		for (int i = layers.size() - 1; i >= 1; --i) {
-			double[] totalErrors = new double[layers.get(i).getWeights()[0].length];
+			double[] totalErrors = new double[layers.get(i).getNumInputs()];
 			Arrays.fill(totalErrors, 0);
 			for (int j = 0; j < layers.get(i).getWeights().length; ++j) {
 				double output = layers.get(i).getOutputs()[j];

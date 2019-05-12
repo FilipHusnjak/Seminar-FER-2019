@@ -46,7 +46,7 @@ public class Window extends JFrame {
 	
 	private static int ITER_RES = 1000;
 	
-	private static double precision = 0.2;
+	private static double MAX_ERROR = 0.1;
 	
 	private BackPropagationNetwork network = new BackPropagationNetwork(new int[] {5, 1});
 	
@@ -59,7 +59,11 @@ public class Window extends JFrame {
 		super.setLayout(new BorderLayout());
 		super.add(drawPanel, BorderLayout.CENTER);
 		super.setResizable(false);
-		
+		initGui();
+		super.pack();
+	}
+	
+	private void initGui() {
 		JPanel panelSouth = new JPanel();
 		JButton btnStart = new JButton("Start");
 		JButton btnStop = new JButton("Stop");
@@ -67,9 +71,11 @@ public class Window extends JFrame {
 		JButton btnClear = new JButton("Clear");
 		TextField definition = new TextField();
 		TextField maxIter = new TextField();
+		TextField maxErrortf = new TextField();
 		TextField iterRes = new TextField();
 		Label defLabel = new Label("Network:");
 		Label maxIterLabel = new Label("Max iterations:");
+		Label maxErrorLabel = new Label("Max error:");
 		Label iterResLabel = new Label("Each");
 		Label iterResLabelDesc = new Label("iterations picture is redrawn!");
 		
@@ -97,11 +103,12 @@ public class Window extends JFrame {
 			clear = false;
 			running = true;
 			String[] parts = definition.getText().split(",");
-			int[] defNetwork = new int[parts.length - 1];
-			for (int i = 1; i < parts.length; ++i) {
-				defNetwork[i - 1] = Integer.parseInt(parts[i].trim());
+			int[] defNetwork = new int[parts.length];
+			for (int i = 0; i < parts.length; ++i) {
+				defNetwork[i] = Integer.parseInt(parts[i].trim());
 			}
 			MAX_ITER = Integer.parseInt(maxIter.getText().trim());
+			MAX_ERROR = Double.parseDouble(maxErrortf.getText().trim());
 			ITER_RES = Integer.parseInt(iterRes.getText().trim());
 			network = new BackPropagationNetwork(defNetwork);
 			new Thread(() -> {
@@ -110,16 +117,16 @@ public class Window extends JFrame {
 						maxError = 0;
 						loopCoordinates(coordinatesRed, 0);
 						loopCoordinates(coordinatesBlue, 1);
-						if (maxError < precision) break;
+						if (maxError < MAX_ERROR) break;
 					}
 					SwingUtilities.invokeLater(() -> drawPanel.repaint());
 					try {
 						Thread.sleep(500);
 					} catch (InterruptedException e) {
 					}
-					if (maxError < precision) break;
+					if (maxError < MAX_ERROR) break;
 				}
-				btnStart.setEnabled(true);
+				SwingUtilities.invokeLater(() -> btnStart.setEnabled(true));
 			}).start();
 		});
 		
@@ -138,9 +145,11 @@ public class Window extends JFrame {
 		definition.setPreferredSize(new Dimension(100, 25));
 		definition.setText("2,1");
 		
-		maxIter.setText("100000");
+		maxIter.setText(Integer.toString(MAX_ITER));
 		
-		iterRes.setText("1000");
+		iterRes.setText(Integer.toString(ITER_RES));
+		
+		maxErrortf.setText(Double.toString(MAX_ERROR));
 		
 		panelSouth.setLayout(new GridLayout(4, 1));
 		JPanel bottomPanelNorth = new JPanel();
@@ -161,6 +170,8 @@ public class Window extends JFrame {
 		panelSouth.add(bottomPanel2);
 		bottomPanel2.add(maxIterLabel);
 		bottomPanel2.add(maxIter);
+		bottomPanel2.add(maxErrorLabel);
+		bottomPanel2.add(maxErrortf);
 		
 		panelSouth.add(bottomPanel3);
 		bottomPanel3.add(iterResLabel);
@@ -168,9 +179,6 @@ public class Window extends JFrame {
 		bottomPanel3.add(iterResLabelDesc);
 		
 		this.add(panelSouth, BorderLayout.SOUTH);
-		
-		this.pack();
-		
 	}
 	
 	private class DrawPanel extends JPanel {

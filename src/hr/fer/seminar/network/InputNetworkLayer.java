@@ -30,4 +30,9 @@ public class InputNetworkLayer implements INetworkLayer {
 	@Override
 	public void restart() {}
 
+	@Override
+	public int getNumInputs() {
+		throw new UnsupportedOperationException();
+	}
+
 }

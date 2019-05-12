@@ -2,14 +2,16 @@ package hr.fer.seminar.network;
 
 public interface INetworkLayer {
 
-	public double[][] getWeights();
+	double[][] getWeights();
 	
-	public double[] getOutputs();
+	double[] getOutputs();
 	
-	public double[] getThreshold();
+	double[] getThreshold();
 	
-	public void calculateOutputs(double[] inputs);
+	int getNumInputs();
 	
-	public void restart();
+	void calculateOutputs(double[] inputs);
+	
+	void restart();
 	
 }

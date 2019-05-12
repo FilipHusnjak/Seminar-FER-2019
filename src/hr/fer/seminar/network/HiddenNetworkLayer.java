@@ -10,7 +10,13 @@ public class HiddenNetworkLayer implements INetworkLayer {
 		
 	private double[] threshold;
 	
+	private int numInputs;
+	
 	public HiddenNetworkLayer(int neuronCount, int numInputs) {
+		if (neuronCount <= 0 || numInputs <= 0) {
+			throw new IllegalArgumentException("Number of inputs and neurons has to be posivive number!");
+		}
+		this.numInputs = numInputs;
 		weights = new double[neuronCount][numInputs];
 		threshold = new double[neuronCount];
 		outputs = new double[neuronCount];
@@ -63,6 +69,11 @@ public class HiddenNetworkLayer implements INetworkLayer {
 	@Override
 	public void restart() {
 		setWeights();
+	}
+
+	@Override
+	public int getNumInputs() {
+		return numInputs;
 	}
 	
 }
