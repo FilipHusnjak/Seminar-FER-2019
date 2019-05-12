@@ -1,7 +1,17 @@
 package hr.fer.seminar.network;
 
+/**
+ * First layer in the network. It does not have weighted inputs so methods
+ * {@link #getWeights()}, {@link #getOutputs()} and {@link #getThreshold()}
+ * are not supported.
+ * 
+ * @author Filip Husnjak
+ */
 public class InputNetworkLayer implements INetworkLayer {
 
+	/**
+	 * Outputs of this layer
+	 */
 	private double[] outputs = new double[2];
 	
 	@Override
@@ -32,7 +42,7 @@ public class InputNetworkLayer implements INetworkLayer {
 
 	@Override
 	public int getNumInputs() {
-		throw new UnsupportedOperationException();
+		return 2;
 	}
 
 }

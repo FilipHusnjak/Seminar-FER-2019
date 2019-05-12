@@ -21,37 +21,93 @@ import javax.swing.WindowConstants;
 
 import hr.fer.seminar.network.BackPropagationNetwork;
 
+/**
+ * Main window that simulates classification.
+ * 
+ * @author Filip Husnjak
+ */
 public class Window extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private static final int DRAW_WIDTH = 420;
-	private static final int DRAW_HEIGHT = 420;
-		
+	/**
+	 * Window width
+	 */
+	private static final int DRAW_WIDTH = 500;
+	
+	/**
+	 * Window height
+	 */
+	private static final int DRAW_HEIGHT = 500;
+	
+	/**
+	 * Main panel used for drawing
+	 */
 	private DrawPanel drawPanel = new DrawPanel();
 	
-	private List<Coordinate> coordinatesRed = new ArrayList<>();
-	private List<Coordinate> coordinatesBlue = new ArrayList<>();
-		
-	private List<List<Coordinate>> listCoord = Arrays.asList(coordinatesRed, coordinatesBlue);
+	/**
+	 * Red points
+	 */
+	private List<Point> coordinatesRed = new ArrayList<>();
 	
+	/**
+	 * Blue points
+	 */
+	private List<Point> coordinatesBlue = new ArrayList<>();
+	
+	/**
+	 * List that holds red points and blue points
+	 */
+	private List<List<Point>> listCoord = Arrays.asList(coordinatesRed, coordinatesBlue);
+	
+	/**
+	 * Should window be cleared
+	 */
 	private boolean clear = true;
 	
+	/**
+	 * Should iterations continue
+	 */
 	private boolean running = false;
 	
+	/**
+	 * Points colors
+	 */
 	private Color[] colors = {Color.RED, Color.BLUE};
+	
+	/**
+	 * Index of current color in use
+	 */
 	private int colorIndex = 0;
 	
+	/**
+	 * Maximum number of iterations
+	 */
 	private static int MAX_ITER = 100000;
 	
+	/**
+	 * How many iterations have to pass before drawing
+	 */
 	private static int ITER_RES = 1000;
 	
+	/**
+	 * Maximum error of the network
+	 */
 	private static double MAX_ERROR = 0.1;
 	
-	private BackPropagationNetwork network = new BackPropagationNetwork(new int[] {5, 1});
+	/**
+	 * Network used for learning and classification
+	 */
+	private BackPropagationNetwork network;
 	
+	/**
+	 * Max error that network created
+	 */
 	private double maxError;
 	
+	/**
+	 * Constructs and initializes new window.
+	 */
 	public Window() {
 		super.setLocation(20, 20);
 		super.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -63,6 +119,9 @@ public class Window extends JFrame {
 		super.pack();
 	}
 	
+	/**
+	 * Initializes GUI with proper labels and buttons.
+	 */
 	private void initGui() {
 		JPanel panelSouth = new JPanel();
 		JButton btnStart = new JButton("Start");
@@ -84,7 +143,7 @@ public class Window extends JFrame {
 		drawPanel.addMouseListener(new MouseAdapter() {
 			@Override
             public void mousePressed(MouseEvent e) {
-				listCoord.get(colorIndex).add(new Coordinate(e.getPoint().x, e.getPoint().y));
+				listCoord.get(colorIndex).add(new Point(e.getPoint().x, e.getPoint().y));
                 drawPanel.repaint();
             }
 		});
@@ -181,6 +240,11 @@ public class Window extends JFrame {
 		this.add(panelSouth, BorderLayout.SOUTH);
 	}
 	
+	/**
+	 * Represents panel used for drawing.
+	 * 
+	 * @author Filip Husnjak
+	 */
 	private class DrawPanel extends JPanel {
 
 		private static final long serialVersionUID = 1L;
@@ -206,14 +270,14 @@ public class Window extends JFrame {
             	}
             }
             g.setColor(Color.RED);
-            for (Coordinate c : coordinatesRed) {
+            for (Point c : coordinatesRed) {
             	g.setColor(Color.RED);
             	g.fillRect(c.getX(), c.getY(), 4, 4);
             	g.setColor(Color.WHITE);
             	g.drawRect(c.getX() - 1, c.getY() - 1, 6, 6);
             }
             g.setColor(Color.BLUE);
-            for (Coordinate c : coordinatesBlue) {
+            for (Point c : coordinatesBlue) {
             	g.setColor(Color.BLUE);
             	g.fillRect(c.getX(), c.getY(), 4, 4);
             	g.setColor(Color.WHITE);
@@ -222,8 +286,16 @@ public class Window extends JFrame {
         }
     }
 	
-	private void loopCoordinates(List<Coordinate> coordinates, int desiredValue) {
-		for (Coordinate c: coordinates) {
+	/**
+	 * Loops through coordinates and trains the network.
+	 * 
+	 * @param coordinates
+	 *        coordinates used for training
+	 * @param desiredValue
+	 *        desired output of the network
+	 */
+	private void loopCoordinates(List<Point> coordinates, int desiredValue) {
+		for (Point c: coordinates) {
 			network.calcResult(transformCoordinateX(c.getX()), transformCoordinateY(c.getY()));
 			network.propagateError(desiredValue);
 			if (Math.abs(network.getError()) > maxError) {
@@ -232,10 +304,24 @@ public class Window extends JFrame {
 		}
 	}
 	
+	/**
+	 * Transforms x coordinate of the pixel to appropriate 2D coordinate system.
+	 * 
+	 * @param x
+	 *        coordinate to be transformed
+	 * @return transformed coordinate
+	 */
 	private static double transformCoordinateX(int x) {
 		return (double) x / (DRAW_WIDTH - 1);
 	}
 	
+	/**
+	 * Transforms y coordinate of the pixel to appropriate 2D coordinate system.
+	 * 
+	 * @param y
+	 *        coordinate to be transformed
+	 * @return transformed coordinate
+	 */
 	private static double transformCoordinateY(int y) {
 		return 1 - (double) y / (DRAW_HEIGHT - 1);
 	}

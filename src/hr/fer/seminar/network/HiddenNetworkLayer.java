@@ -2,16 +2,43 @@ package hr.fer.seminar.network;
 
 import java.util.Random;
 
+/**
+ * Represents hidden network layer that has defined adjustable weights.
+ * 
+ * @author Filip Husnjak
+ */
 public class HiddenNetworkLayer implements INetworkLayer {
 
+	/**
+	 * Weights of this layer
+	 */
 	private final double[][] weights;
 	
+	/**
+	 * Outputs of this layer
+	 */
 	private final double[] outputs;
 		
+	/**
+	 * Threshold of neurons in this layer
+	 */
 	private double[] threshold;
 	
+	/**
+	 * Number of inputs of this layer
+	 */
 	private int numInputs;
 	
+	/**
+	 * Constructs new {@link HiddenNetworkLayer} with specified neuron count
+	 * and number of inputs.
+	 * 
+	 * @param neuronCount
+	 *        number of neurons in this layer
+	 * @param numInputs
+	 *        number of inputs connected to this layer
+	 * @throws IllegalArgumentException if either neuron count or number of inputs are not positive
+	 */
 	public HiddenNetworkLayer(int neuronCount, int numInputs) {
 		if (neuronCount <= 0 || numInputs <= 0) {
 			throw new IllegalArgumentException("Number of inputs and neurons has to be posivive number!");
@@ -23,6 +50,9 @@ public class HiddenNetworkLayer implements INetworkLayer {
 		setWeights();
 	}
 	
+	/**
+	 * Initializes weights of this layer.
+	 */
 	private void setWeights() {
 		Random rand = new Random();
 		for (int i = 0; i < weights.length; ++i) {
@@ -47,6 +77,13 @@ public class HiddenNetworkLayer implements INetworkLayer {
 		}
 	}
 
+	/**
+	 * Calculates and returns the value of sigmoid function.
+	 * 
+	 * @param weightedSum
+	 *        used to calculated value of sigmoid function
+	 * @return the value of sigmoid function
+	 */
 	private double applyActivationFunction(double weightedSum) {
 		return 1.0 / (1 + Math.exp(-weightedSum));
 	}
