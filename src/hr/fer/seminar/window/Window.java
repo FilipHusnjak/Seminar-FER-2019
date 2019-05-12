@@ -225,7 +225,7 @@ public class Window extends JFrame {
 	private void loopCoordinates(List<Coordinate> coordinates, int desiredValue) {
 		for (Coordinate c: coordinates) {
 			network.calcResult(transformCoordinateX(c.getX()), transformCoordinateY(c.getY()));
-			network.calculateAndAdjustError(desiredValue);
+			network.propagateError(desiredValue);
 			if (Math.abs(network.getError()) > maxError) {
 				maxError = Math.abs(network.getError());
 			}

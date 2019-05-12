@@ -6,7 +6,7 @@ import java.util.List;
 
 public class BackPropagationNetwork {
 	
-	public List<INetworkLayer> layers = new ArrayList<>();
+	private List<INetworkLayer> layers = new ArrayList<>();
 	
 	private double result;
 	
@@ -34,7 +34,7 @@ public class BackPropagationNetwork {
 		return result = layers.get(layers.size() - 1).getOutputs()[0];
 	}
 	
-	public void calculateAndAdjustError(double desired) {
+	public void propagateError(double desired) {
 		double[] errors = new double[] {error = desired - result};
 		for (int i = layers.size() - 1; i >= 1; --i) {
 			double[] totalErrors = new double[layers.get(i).getNumInputs()];
