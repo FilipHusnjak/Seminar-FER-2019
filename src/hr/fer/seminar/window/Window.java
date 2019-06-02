@@ -7,8 +7,11 @@ import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.TextField;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,12 +36,12 @@ public class Window extends JFrame {
 	/**
 	 * Window width
 	 */
-	private static final int DRAW_WIDTH = 500;
+	private static int DRAW_WIDTH = 500;
 	
 	/**
 	 * Window height
 	 */
-	private static final int DRAW_HEIGHT = 500;
+	private static int DRAW_HEIGHT = 500;
 	
 	/**
 	 * Main panel used for drawing
@@ -114,7 +117,6 @@ public class Window extends JFrame {
 		super.setTitle("Simulation");
 		super.setLayout(new BorderLayout());
 		super.add(drawPanel, BorderLayout.CENTER);
-		super.setResizable(false);
 		initGui();
 		super.pack();
 	}
@@ -128,15 +130,25 @@ public class Window extends JFrame {
 		JButton btnStop = new JButton("Stop");
 		JButton btnColor = new JButton("Toggle Color");
 		JButton btnClear = new JButton("Clear");
-		TextField definition = new TextField();
+		TextField definition = new TextField(10);
 		TextField maxIter = new TextField();
 		TextField maxErrortf = new TextField();
+		TextField learningRatetf = new TextField();
 		TextField iterRes = new TextField();
 		Label defLabel = new Label("Network:");
 		Label maxIterLabel = new Label("Max iterations:");
 		Label maxErrorLabel = new Label("Max error:");
+		Label learningRateLabel = new Label("Learning rate:");
 		Label iterResLabel = new Label("Each");
 		Label iterResLabelDesc = new Label("iterations picture is redrawn!");
+		
+		drawPanel.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent componentEvent) {
+				DRAW_WIDTH = drawPanel.getSize().width;
+				DRAW_HEIGHT = drawPanel.getSize().height;
+		    }
+		});
 		
 		btnColor.setBackground(Color.RED);
 		
@@ -169,6 +181,7 @@ public class Window extends JFrame {
 			MAX_ITER = Integer.parseInt(maxIter.getText().trim());
 			MAX_ERROR = Double.parseDouble(maxErrortf.getText().trim());
 			ITER_RES = Integer.parseInt(iterRes.getText().trim());
+			BackPropagationNetwork.LEARNING_RATE = Double.parseDouble(learningRatetf.getText());
 			network = new BackPropagationNetwork(defNetwork);
 			new Thread(() -> {
 				for (int j = 0, n = (int) Math.ceil(MAX_ITER / ITER_RES); j < n && running; ++j) {
@@ -201,7 +214,6 @@ public class Window extends JFrame {
 			btnColor.setBackground(colors[colorIndex]);
 		});
 		
-		definition.setPreferredSize(new Dimension(100, 25));
 		definition.setText("2,1");
 		
 		maxIter.setText(Integer.toString(MAX_ITER));
@@ -209,6 +221,8 @@ public class Window extends JFrame {
 		iterRes.setText(Integer.toString(ITER_RES));
 		
 		maxErrortf.setText(Double.toString(MAX_ERROR));
+		
+		learningRatetf.setText(Double.toString(BackPropagationNetwork.LEARNING_RATE));
 		
 		panelSouth.setLayout(new GridLayout(4, 1));
 		JPanel bottomPanelNorth = new JPanel();
@@ -225,6 +239,8 @@ public class Window extends JFrame {
 		panelSouth.add(bottomPanel1);
 		bottomPanel1.add(defLabel);
 		bottomPanel1.add(definition);
+		bottomPanel1.add(learningRateLabel);
+		bottomPanel1.add(learningRatetf);
 		
 		panelSouth.add(bottomPanel2);
 		bottomPanel2.add(maxIterLabel);
@@ -246,6 +262,8 @@ public class Window extends JFrame {
 	 * @author Filip Husnjak
 	 */
 	private class DrawPanel extends JPanel {
+		
+		private BufferedImage image;
 
 		private static final long serialVersionUID = 1L;
 
@@ -256,27 +274,29 @@ public class Window extends JFrame {
         @Override
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
+            if (image == null || image.getHeight() != getHeight() || image.getWidth() != getWidth()) {
+            	image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+            }
         	for (int y = 0; y < getHeight(); ++y) {
             	for (int x = 0; x < getWidth(); ++x) {
             		if (clear) {
-            			g.setColor(Color.WHITE);
+            			image.setRGB(x, y, 0xFFFFFFFF);
             		} else {
             			double output = network.calcResult(transformCoordinateX(x), transformCoordinateY(y));
-            			float opacity = (float) (output < 0.5 ? 1 - output / 0.5 : output / 0.5 - 1);
-            			Color color = output < 0.5 ? new Color(1, 0, 0, opacity) : new Color(0, 0, 1, opacity);
-            			g.setColor(color);
+            			double opacity = output < 0.5
+            					? 1 - output / 0.5
+            					: output / 0.5 - 1;
+            			image.setRGB(x, y, (output < 0.5 ? 0xFF0000 : 0xFF) | ((int)(0xFF * opacity) << 24));
             		}
-            		g.drawLine(x, y, x, y);
             	}
             }
-            g.setColor(Color.RED);
+        	g.drawImage(image, 0, 0, getWidth(), getHeight(), 0, 0, getWidth(), getHeight(), null);
             for (Point c : coordinatesRed) {
             	g.setColor(Color.RED);
             	g.fillRect(c.getX(), c.getY(), 4, 4);
             	g.setColor(Color.WHITE);
             	g.drawRect(c.getX() - 1, c.getY() - 1, 6, 6);
             }
-            g.setColor(Color.BLUE);
             for (Point c : coordinatesBlue) {
             	g.setColor(Color.BLUE);
             	g.fillRect(c.getX(), c.getY(), 4, 4);

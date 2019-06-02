@@ -42,7 +42,7 @@ public class BackPropagationNetwork {
 	/**
 	 * Learning rate of this network, should be less than {@code 1}
 	 */
-	private static double LEARNING_RATE = 0.5;
+	public static double LEARNING_RATE = 0.5;
 
 	/**
 	 * Constructs new {@link BackPropagationNetwork} with given network definition.
