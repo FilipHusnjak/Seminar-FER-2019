@@ -1,2 +1,3 @@
 # Seminar-FER-2019
-Algoritam propagacije pogreške unatrag primijenjen na klasifikaciji u 2D koordinatnom sustavu
+Backpropagation algorithm applied to binary classification.
+Seminar project lead by Assistant Professor Marko Čupić.
